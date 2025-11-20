@@ -1,0 +1,823 @@
+{% extends 'base.html' %}
+
+{% block title %} SBOM | Vulnerability Assessment {% endblock %}
+
+{% block content %}
+<style>
+  body {
+    overflow: visible !important;
+  }
+
+  .graph-container {
+    height: calc(100vh - 140px);
+    display: flex;
+    gap: 0;
+    margin: -1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .graph-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #1e293b;
+    border-right: 1px solid #334155;
+  }
+
+  .details-section {
+    width: 380px;
+    display: flex;
+    flex-direction: column;
+    background: #1e293b;
+  }
+
+  #cy {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<div class="graph-container" x-data="graphComponent()">
+
+  <div class="graph-section">
+    <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+      <h2 class="text-xl font-bold text-white">Dependency Graph</h2>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-400">Severity:</span>
+        <span class="px-2 py-0.5 rounded text-xs font-semibold bg-red-900 text-red-200">Critical</span>
+        <span class="px-2 py-0.5 rounded text-xs font-semibold bg-pink-900 text-pink-200">High</span>
+        <span class="px-2 py-0.5 rounded text-xs font-semibold bg-yellow-900 text-yellow-200">Moderate</span>
+        <span class="px-2 py-0.5 rounded text-xs font-semibold bg-green-900 text-green-200">Low</span>
+      </div>
+    </div>
+
+    <div class="relative flex-1 bg-gray-900">
+      <div id="cy" class="w-full h-full"></div>
+
+      <div x-show="isLoading"
+        class="absolute inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center backdrop-blur-sm">
+        <div class="text-center">
+          <svg class="animate-spin h-12 w-12 text-blue-500 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          <p class="text-gray-300 font-medium">Loading dependency graph...</p>
+        </div>
+      </div>
+
+      <div x-show="errorMessage" x-text="errorMessage"
+        class="absolute inset-0 bg-red-900 bg-opacity-90 text-red-200 p-6 flex items-center justify-center text-center">
+      </div>
+
+      <div class="absolute bottom-4 right-4 flex flex-col gap-2">
+        <button onclick="window.zoomIn()"
+          class="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg text-white flex items-center justify-center shadow-lg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+        </button>
+        <button onclick="window.zoomOut()"
+          class="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg text-white flex items-center justify-center shadow-lg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+          </svg>
+        </button>
+        <button onclick="window.resetZoom()"
+          class="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg text-white flex items-center justify-center shadow-lg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="details-section">
+    <div class="px-5 py-4 border-b border-gray-700">
+      <h2 class="text-lg font-bold text-white">Node Details</h2>
+    </div>
+
+    <div x-show="!selectedNode" class="flex-1 flex items-center justify-center text-center p-6">
+      <div>
+        <svg class="w-16 h-16 text-gray-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-gray-400 text-sm">Click on a node to view details</p>
+      </div>
+    </div>
+
+    <div x-show="selectedNode" class="flex-1 overflow-y-auto p-5 space-y-4">
+
+      <div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase" :class="{
+                'bg-purple-900 text-purple-200': selectedNode && selectedNode.type === 'language',
+                'bg-blue-900 text-blue-200': selectedNode && selectedNode.type === 'file',
+                'bg-green-900 text-green-200': selectedNode && selectedNode.type === 'symbol'
+              }" x-text="selectedNode ? selectedNode.type : ''">
+        </span>
+      </div>
+
+      <div class="bg-gray-700 rounded-lg p-3">
+        <label class="text-xs text-gray-400 uppercase font-semibold block mb-1">Name</label>
+        <p class="text-white font-medium break-words" x-text="selectedNode ? selectedNode.label : ''"></p>
+      </div>
+
+      <div class="bg-gray-700 rounded-lg p-3" x-show="selectedNode && selectedNode.type === 'file'">
+        <label class="text-xs text-gray-400 uppercase font-semibold block mb-1">File Name</label>
+        <p class="text-white font-mono text-sm break-all" x-text="selectedNode ? selectedNode.label : ''"></p>
+      </div>
+
+      <div class="bg-gray-700 rounded-lg p-3" x-show="selectedNode && selectedNode.path">
+        <label class="text-xs text-gray-400 uppercase font-semibold block mb-1">Path</label>
+        <p class="text-white font-mono text-xs break-all" x-text="selectedNode ? selectedNode.path : 'N/A'"></p>
+      </div>
+
+      <!-- SEVERITY -->
+<div class="bg-gray-700 rounded-lg p-3" x-show="selectedNode && selectedNode.vulnerability_severity">
+  <label class="text-xs text-gray-400 uppercase font-semibold block mb-2">Vulnerability Severity</label>
+  <template x-if="selectedNode && selectedNode.vulnerability_severity">
+    <div>
+      <!-- Critical -->
+      <span x-show="selectedNode.vulnerability_severity === 'CRITICAL'" 
+            class="inline-block px-4 py-2 rounded-lg font-bold uppercase tracking-wide text-sm"
+            style="background-color: #DC2626; color: white;">
+        CRITICAL
+      </span>
+      
+      <!-- High -->
+      <span x-show="selectedNode.vulnerability_severity === 'HIGH'" 
+            class="inline-block px-4 py-2 rounded-lg font-bold uppercase tracking-wide text-sm"
+            style="background-color: #EA580C; color: white;">
+        HIGH
+      </span>
+      
+      <!-- Moderate -->
+      <span x-show="selectedNode.vulnerability_severity === 'MODERATE'" 
+            class="inline-block px-4 py-2 rounded-lg font-bold uppercase tracking-wide text-sm"
+            style="background-color: #CA8A04; color: white;">
+        MODERATE
+      </span>
+      
+      <!-- Low -->
+      <span x-show="selectedNode.vulnerability_severity === 'LOW'" 
+            class="inline-block px-4 py-2 rounded-lg font-bold uppercase tracking-wide text-sm"
+            style="background-color: #16A34A; color: white;">
+        LOW
+      </span>
+    </div>
+  </template>
+</div>
+
+
+
+
+      <div class="bg-gray-700 rounded-lg p-3"
+        x-show="selectedNode && selectedNode.vulnerabilities && selectedNode.vulnerabilities.length > 0">
+        <label class="text-xs text-gray-400 uppercase font-semibold block mb-2">Affected By</label>
+        <div class="space-y-2 max-h-40 overflow-y-auto">
+          <template x-for="vuln in (selectedNode ? selectedNode.vulnerabilities : [])" :key="vuln.cve">
+            <div class="bg-gray-800 rounded p-2 text-xs">
+              <p class="text-blue-400 font-semibold" x-text="vuln.cve"></p>
+              <p class="text-gray-300 mt-1 line-clamp-2"
+                x-text="vuln.details ? vuln.details.substring(0, 80) + '...' : 'No details'"></p>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div class="bg-gray-700 rounded-lg p-3">
+        <label class="text-xs text-gray-400 uppercase font-semibold block mb-1">Node ID</label>
+        <p class="text-gray-300 font-mono text-xs break-all" x-text="selectedNode ? selectedNode.id : ''"></p>
+      </div>
+
+      <div class="bg-gray-700 rounded-lg p-3">
+        <label class="text-xs text-gray-400 uppercase font-semibold block mb-1">Connections</label>
+        <div class="flex gap-4 text-sm">
+          <div>
+            <span class="text-gray-400">In:</span>
+            <span class="text-white font-semibold ml-1" x-text="selectedNode ? selectedNode.indegree : 0"></span>
+          </div>
+          <div>
+            <span class="text-gray-400">Out:</span>
+            <span class="text-white font-semibold ml-1" x-text="selectedNode ? selectedNode.outdegree : 0"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="p-4 border-t border-gray-700">
+      <a href="#vulnerabilities"
+        class="block w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-lg font-medium transition">
+        View All Vulnerabilities
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Vulnerability Table Section (Scrollable Below) -->
+<section id="vulnerabilities" class="bg-white shadow-2xl rounded-xl border border-gray-200 p-6 mt-8" 
+         x-data="vulnerabilityApp()" 
+         x-init="init()">
+
+  <div class="flex items-center justify-between mb-5">
+    <h2 class="text-2xl font-bold text-gray-900">Vulnerabilities Detected</h2>
+  </div>
+
+  <div class="flex gap-4 mb-4">
+    <input type="text"
+           x-model="searchTerm"
+           placeholder="🔍 Search by software name, CVE, or description..."
+           class="flex-1 bg-white border-2 border-gray-300 text-gray-900 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500">
+    
+    <select x-model="selectedSeverity"
+            class="bg-white border-2 border-gray-300 text-gray-900 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <option value="All">All Severities</option>
+      <option value="Critical">Critical</option>
+      <option value="High">High</option>
+      <option value="Moderate">Moderate</option>
+      <option value="Low">Low</option>
+    </select>
+  </div>
+
+  <div class="overflow-x-auto rounded-lg border-2 border-gray-200 shadow-sm">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Risk Level</th>
+          <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CVSS Score</th>
+          <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">CVE ID</th>
+          <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Summary</th>
+          <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Affected Software</th>
+        </tr>
+      </thead>
+
+      <tbody class="bg-white divide-y divide-gray-200">
+        <template x-for="(vuln, index) in paginatedVulnerabilities" :key="index">
+          <tr class="hover:bg-gray-50 transition" :class="{'bg-red-50': vuln.severity === 'Critical', 'bg-orange-50': vuln.severity === 'High', 'bg-yellow-50': vuln.severity === 'Moderate', 'bg-green-50': vuln.severity === 'Low'}">
+            <td class="px-6 py-4">
+  <!-- Critical -->
+  <span x-show="vuln.severity === 'CRITICAL'" 
+        class="inline-block px-2 py-2 rounded-lg font-bold uppercase tracking-wide text-xs"
+        style="background-color: #DC2626; color: rgb(255, 239, 239);">
+    CRITICAL
+  </span>
+  
+  <!-- High -->
+  <span x-show="vuln.severity === 'HIGH'" 
+        class="inline-block px-3 py-2 rounded-lg font-bold uppercase tracking-wide text-xs"
+        style="background-color: #EA580C; color: rgb(254, 254, 254);">
+    HIGH
+  </span>
+  
+  <!-- Moderate -->
+  <span x-show="vuln.severity === 'MODERATE'" 
+        class="inline-block px-3 py-2 rounded-lg font-bold uppercase tracking-wide text-xs"
+        style="background-color: #CA8A04; color: white;">
+    MODERATE
+  </span>
+  
+  <!-- Low -->
+  <span x-show="vuln.severity === 'LOW'" 
+        class="inline-block px-3 py-2 rounded-lg font-bold uppercase tracking-wide text-xs"
+        style="background-color: #16A34A; color: white;">
+    LOW
+  </span>
+  
+  <!-- Unknown/Other -->
+
+</td>
+
+
+            <td class="px-6 py-4">
+              <span class="text-sm font-semibold text-gray-900" x-text="vuln.CVSS_V3 || vuln.CVSS_V4 || 'N/A'"></span>
+            </td>
+            <td class="px-6 py-4 text-sm">
+              <a x-show="vuln.cve" 
+                 :href="'https://nvd.nist.gov/vuln/detail/' + vuln.cve" 
+                 target="_blank" 
+                 class="text-blue-600 hover:text-blue-800 hover:underline font-medium" 
+                 x-text="vuln.cve">
+              </a>
+              <span x-show="!vuln.cve" class="text-gray-400 italic">N/A</span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700 max-w-lg" x-data="{ expanded: false }">
+              <div x-show="!expanded && vuln.details">
+                <span x-text="vuln.details && vuln.details.split(' ').length > 50 ? vuln.details.split(' ').slice(0, 50).join(' ') + '...' : vuln.details"></span>
+                <button x-show="vuln.details && vuln.details.split(' ').length > 50" 
+                        @click="expanded = true" 
+                        class="text-blue-600 ml-1 hover:underline font-medium">
+                  more
+                </button>
+              </div>
+              <div x-show="expanded && vuln.details">
+                <span x-text="vuln.details"></span>
+                <button @click="expanded = false" class="text-blue-600 ml-1 hover:underline font-medium">less</button>
+              </div>
+              <span x-show="!vuln.details" class="text-gray-400 italic">No summary available</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm font-medium text-gray-900" x-text="vuln.name || 'N/A'"></span>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-between items-center mt-5 text-sm">
+    <button @click="prevPage" 
+            :disabled="currentPage === 1" 
+            class="px-5 py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition shadow-sm">
+      ← Previous
+    </button>
+    <span class="text-gray-700 font-medium">
+      Page <span class="font-bold text-blue-600" x-text="currentPage"></span> 
+      of <span class="font-bold text-blue-600" x-text="totalPages"></span>
+    </span>
+    <button @click="nextPage" 
+            :disabled="currentPage === totalPages" 
+            class="px-5 py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition shadow-sm">
+      Next →
+    </button>
+  </div>
+
+</section>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
+<script>
+
+  function initializeGraph(data, vulnerabilities, alpine) {
+      if (!window.cytoscape) {
+          console.error("Cytoscape.js is not loaded.");
+          return;
+      }
+       const IGNORE_FOLDERS = ['node_modules', 'venv', 'env', '.venv', '__pycache__', '.git', 
+                            'dist', 'build', '.pytest_cache', 'site-packages', 'vendor', 'target'];
+    
+    const shouldIgnore = (path) => {
+        if (!path) return false;
+        const lowerPath = path.toLowerCase();
+        return IGNORE_FOLDERS.some(folder => lowerPath.includes(`/${folder}/`) || lowerPath.includes(`\\${folder}\\`));
+    };
+    
+    // Filter data
+    const filteredData = data.filter(element => {
+        if (element.group === 'nodes') {
+            const nodeId = element.data.id || '';
+            const nodePath = element.data.path || nodeId;
+            return !shouldIgnore(nodeId) && !shouldIgnore(nodePath);
+        } else if (element.group === 'edges') {
+            const source = element.data.source || '';
+            const target = element.data.target || '';
+            return !shouldIgnore(source) && !shouldIgnore(target);
+        }
+        return true;
+    });
+    
+    // Use filteredData instead of data
+    data = filteredData;
+      const vulnerableModules = {};
+      
+      vulnerabilities.forEach(vuln => {
+          const moduleName = vuln.name ? vuln.name.toLowerCase().trim() : '';
+          if (moduleName) {
+              if (!vulnerableModules[moduleName] || 
+                  getSeverityPriority(vuln.severity) > getSeverityPriority(vulnerableModules[moduleName].severity)) {
+                  vulnerableModules[moduleName] = {
+                      severity: vuln.severity,
+                      vulnerabilities: []
+                  };
+              }
+              if (!vulnerableModules[moduleName].vulnerabilities) {
+                  vulnerableModules[moduleName].vulnerabilities = [];
+              }
+              vulnerableModules[moduleName].vulnerabilities.push(vuln);
+          }
+      });
+
+      function getSeverityPriority(severity) {
+          const priorities = { 'Critical': 4, 'High': 3, 'Moderate': 2, 'Low': 1 };
+          return priorities[severity] || 0;
+      }
+      
+      const filesToExpand = new Set();
+      const vulnerableSymbolIds = new Set();
+
+      data.forEach(element => {
+          if (element.group === 'nodes') {
+              element.data.original_label = element.data.label;
+              
+              if (element.data.type === 'symbol') {
+                  const symbolLabel = element.data.label.toLowerCase().trim();
+                  
+                  for (const [moduleName, vulnData] of Object.entries(vulnerableModules)) {
+                      if (symbolLabel.includes(moduleName) || moduleName.includes(symbolLabel) || 
+                          symbolLabel === moduleName || symbolLabel.startsWith(moduleName)) {
+                          
+                          element.data.vulnerability_severity = vulnData.severity;
+                          element.data.vulnerabilities = vulnData.vulnerabilities;
+                          vulnerableSymbolIds.add(element.data.id);
+                          break;
+                      }
+                  }
+              }
+              
+              if (element.data.type === 'file') {
+                  element.data.label += ' [+]';
+              }
+          }
+      });
+
+      data.forEach(element => {
+          if (element.group === 'edges') {
+              const sourceId = element.data.source;
+              const targetId = element.data.target;
+              
+              if (vulnerableSymbolIds.has(targetId)) {
+                  filesToExpand.add(sourceId);
+                  
+                  const fileNode = data.find(el => el.group === 'nodes' && el.data.id === sourceId);
+                  if (fileNode && fileNode.data.type === 'file') {
+                      const symbolNode = data.find(el => el.group === 'nodes' && el.data.id === targetId);
+                      if (symbolNode && symbolNode.data.vulnerability_severity) {
+                          if (!fileNode.data.vulnerability_severity || 
+                              getSeverityPriority(symbolNode.data.vulnerability_severity) > 
+                              getSeverityPriority(fileNode.data.vulnerability_severity)) {
+                              fileNode.data.vulnerability_severity = symbolNode.data.vulnerability_severity;
+                          }
+                          if (!fileNode.data.vulnerabilities) {
+                              fileNode.data.vulnerabilities = [];
+                          }
+                          fileNode.data.vulnerabilities.push(...(symbolNode.data.vulnerabilities || []));
+                      }
+                  }
+              }
+          }
+      });
+
+      const cy = cytoscape({
+          container: document.getElementById('cy'),
+          elements: data,
+          style: [
+              { 
+                  selector: 'node', 
+                  style: { 
+                      'label': 'data(label)', 
+                      'color': '#fff', 
+                      'text-outline-color': '#1f2937', 
+                      'text-outline-width': '2px', 
+                      'text-valign': 'center', 
+                      'font-size': '11px',
+                      'text-wrap': 'wrap',
+                      'text-max-width': '120px',
+                      'font-family': 'system-ui, -apple-system, sans-serif'
+                  }
+              },
+              { 
+                  selector: 'node[type="language"]', 
+                  style: { 
+                      'background-color': '#7C3AED', 
+                      'width': 100, 
+                      'height': 100, 
+                      'font-size': '18px',
+                      'font-weight': 'bold',
+                      'text-outline-width': '3px',
+                      'border-width': 4,
+                      'border-color': '#5B21B6'
+                  }
+              },
+              { 
+                  selector: 'node[type="file"]', 
+                  style: { 
+                      'background-color': '#3B82F6', 
+                      'width': 70, 
+                      'height': 70, 
+                      'font-size': '21px',
+                      'border-width': 2,
+                      'border-color': '#2563EB'
+                  }
+              },
+              { 
+                  selector: 'node[type="file"][vulnerability_severity="Critical"]', 
+                  style: { 
+                      'background-color': '#DC2626',
+                      'border-color': '#991B1B',
+                      'border-width': 4
+                  }
+              },
+              { 
+                  selector: 'node[type="file"][vulnerability_severity="High"]', 
+                  style: { 
+                      'background-color': '#EA580C',
+                      'border-color': '#C2410C',
+                      'border-width': 4
+                  }
+              },
+              { 
+                  selector: 'node[type="file"][vulnerability_severity="Moderate"]', 
+                  style: { 
+                      'background-color': '#CA8A04',
+                      'border-color': '#A16207',
+                      'border-width': 4
+                  }
+              },
+              { 
+                  selector: 'node[type="file"][vulnerability_severity="Low"]', 
+                  style: { 
+                      'background-color': '#16A34A',
+                      'border-color': '#15803D',
+                      'border-width': 4
+                  }
+              },
+              { 
+                  selector: 'node[type="symbol"]', 
+                  style: { 
+                      'background-color': '#10B981', 
+                      'shape': 'round-rectangle', 
+                      'width': 'label', 
+                      'height': 30, 
+                      'padding': '8px', 
+                      'font-size': '13px',
+                      'border-width': 1,
+                      'border-color': '#059669'
+                  }
+              },
+              { 
+                  selector: 'node[type="symbol"][vulnerability_severity="Critical"]', 
+                  style: { 
+                      'background-color': '#DC2626',
+                      'border-color': '#991B1B',
+                      'border-width': 3
+                  }
+              },
+              { 
+                  selector: 'node[type="symbol"][vulnerability_severity="High"]', 
+                  style: { 
+                      'background-color': '#EA580C',
+                      'border-color': '#C2410C',
+                      'border-width': 3
+                  }
+              },
+              { 
+                  selector: 'node[type="symbol"][vulnerability_severity="Moderate"]', 
+                  style: { 
+                      'background-color': '#CA8A04',
+                      'border-color': '#A16207',
+                      'border-width': 3
+                  }
+              },
+              { 
+                  selector: 'node[type="symbol"][vulnerability_severity="Low"]', 
+                  style: { 
+                      'background-color': '#16A34A',
+                      'border-color': '#15803D',
+                      'border-width': 3
+                  }
+              },
+              { 
+                  selector: 'edge', 
+                  style: { 
+                      'line-color': '#4B5563', 
+                      'width': 2, 
+                      'curve-style': 'bezier', 
+                      'target-arrow-shape': 'triangle', 
+                      'target-arrow-color': '#4B5563'
+                  }
+              },
+              { 
+                  selector: 'node:selected', 
+                  style: { 
+                      'border-width': 6,
+                      'border-color': '#60A5FA',
+                      'overlay-opacity': 0.3,
+                      'overlay-color': '#60A5FA'
+                  }
+              }
+          ],
+          layout: {
+              name: 'cose',
+              animate: true,
+              animationDuration: 1000,
+              animationEasing: 'ease-out',
+              fit: true,
+              padding: 50,
+              boundingBox: undefined,
+              nodeDimensionsIncludeLabels: true,
+              nodeRepulsion: 400000,
+              nodeOverlap: 200,
+              idealEdgeLength: 300,
+              edgeElasticity: 200,
+              nestingFactor: 1.2,
+              gravity: 1,
+              numIter: 2000,
+              initialTemp: 1000,
+              coolingFactor: 0.99,
+              minTemp: 1.0,
+              randomize: false
+          },
+          minZoom: 0.1,
+          maxZoom: 3,
+          wheelSensitivity: 0.2
+      });
+      
+      cy.nodes('[type="symbol"]').hide();
+
+      filesToExpand.forEach(fileId => {
+          const fileNode = cy.getElementById(fileId);
+          if (fileNode.length > 0) {
+              const allChildren = fileNode.outgoers('[type="symbol"]');
+              
+              allChildren.forEach(child => {
+                  if (vulnerableSymbolIds.has(child.id())) {
+                      child.show();
+                  }
+              });
+              
+              fileNode.data('label', fileNode.data('original_label') + ' [-]');
+          }
+      });
+
+      cy.on('tap', 'node[type="file"]', function(event) {
+          const fileNode = event.target;
+          const allChildren = fileNode.outgoers('[type="symbol"]');
+          
+          if (allChildren.length === 0) return;
+
+          const vulnerableChildren = allChildren.filter(child => vulnerableSymbolIds.has(child.id()));
+          
+          let isExpanded = false;
+          if (vulnerableChildren.length > 0) {
+              isExpanded = vulnerableChildren[0].style('display') !== 'none';
+          }
+
+          if (isExpanded) {
+              vulnerableChildren.forEach(child => child.hide());
+              fileNode.data('label', fileNode.data('original_label') + ' [+]');
+          } else {
+              vulnerableChildren.forEach(child => child.show());
+              fileNode.data('label', fileNode.data('original_label') + ' [-]');
+          }
+      });
+
+      cy.on('tap', 'node', function(event) {
+          const node = event.target;
+          const nodeData = node.data();
+          
+          alpine.selectedNode = {
+              id: nodeData.id,
+              label: nodeData.original_label || nodeData.label.replace(' [+]', '').replace(' [-]', ''),
+              type: nodeData.type,
+              path: nodeData.path || nodeData.id,
+              vulnerability_severity: nodeData.vulnerability_severity,
+              vulnerabilities: nodeData.vulnerabilities || [],
+              indegree: node.indegree(),
+              outdegree: node.outdegree()
+          };
+      });
+
+      cy.on('tap', function(event) {
+          if (event.target === cy) {
+              alpine.selectedNode = null;
+          }
+      });
+      
+      cy.ready(function() {
+          cy.fit(50);
+          cy.center();
+      });
+      
+      window.zoomIn = function() {
+          cy.zoom(cy.zoom() * 1.2);
+          cy.center();
+      };
+      window.zoomOut = function() {
+          cy.zoom(cy.zoom() * 0.8);
+          cy.center();
+      };
+      window.resetZoom = function() {
+          cy.fit(50);
+      };
+  }
+
+  function graphComponent() {
+      return {
+          sbomId: {{ sbom_id if sbom_id else 0 }},
+          isLoading: true,
+          errorMessage: null,
+          vulnerabilities: [],
+          selectedNode: null,
+
+          async fetchVulnerabilities() {
+              try {
+                  const response = await fetch(`/api/vulnerability_details/${this.sbomId}`);
+                  const data = await response.json();
+                  this.vulnerabilities = response.ok ? data : [];
+              } catch (error) {
+                  console.error('Error fetching vulnerabilities:', error);
+                  this.vulnerabilities = [];
+              }
+          },
+
+          async fetchGraphData() {
+              this.isLoading = true;
+              this.errorMessage = null;
+              try {
+                  await this.fetchVulnerabilities();
+                  
+                  const response = await fetch(`/api/graph_data/${this.sbomId}`);
+                  const data = await response.json();
+                  
+                  if (!response.ok || data.error) {
+                      throw new Error(data.error || 'Failed to load graph data.');
+                  }
+                  
+                  initializeGraph(data.elements || data, this.vulnerabilities, this);
+              } catch (error) {
+                  console.error('Error fetching graph data:', error);
+                  this.errorMessage = `Could not load dependency graph: ${error.message}`;
+                  document.getElementById('cy').innerHTML = '';
+              } finally {
+                  this.isLoading = false;
+              }
+          },
+          
+          init() {
+              if (this.sbomId > 0) this.fetchGraphData();
+              else this.isLoading = false;
+          }
+      }
+  }
+
+  function vulnerabilityApp() {
+    return {
+      sbomId: {{ sbom_id if sbom_id else 0 }},
+      vulnerabilities: [],
+      isLoading: true,
+      searchTerm: '',
+      selectedSeverity: 'All',
+      currentPage: 1,
+      pageSize: 10,
+
+      async fetchVulnerabilityDetails() {
+        this.isLoading = true;
+        try {
+          const response = await fetch(`/api/vulnerability_details/${this.sbomId}`);
+          const data = await response.json();
+          this.vulnerabilities = response.ok ? data : [];
+        } catch (error) {
+          console.error('Error fetching vulnerabilities:', error);
+          this.vulnerabilities = [];
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      
+      get filteredVulnerabilities() {
+        let filtered = this.vulnerabilities;
+        const term = this.searchTerm.toLowerCase();
+        
+        if (term) {
+          filtered = filtered.filter(v =>
+            (v.name && v.name.toLowerCase().includes(term)) ||
+            (v.cve && v.cve.toLowerCase().includes(term)) ||
+            (v.details && v.details.toLowerCase().includes(term))
+          );
+        }
+        
+        if (this.selectedSeverity !== 'All') {
+          filtered = filtered.filter(v => v.severity === this.selectedSeverity);
+        }
+        
+        return filtered;
+      },
+
+      get totalPages() {
+        return Math.ceil(this.filteredVulnerabilities.length / this.pageSize) || 1;
+      },
+
+      get paginatedVulnerabilities() {
+        const start = (this.currentPage - 1) * this.pageSize;
+        return this.filteredVulnerabilities.slice(start, start + this.pageSize);
+      },
+
+      nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; },
+      prevPage() { if (this.currentPage > 1) this.currentPage--; },
+
+      init() {
+        if (this.sbomId > 0) this.fetchVulnerabilityDetails();
+        else this.isLoading = false;
+      },
+    }
+  }
+</script>
+
+{% endblock %}

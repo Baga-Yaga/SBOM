@@ -1,0 +1,596 @@
+{% extends 'base.html' %}
+
+{% block title %}SBOM Overview{% endblock %}
+
+{# NEW: Add Socket.IO client library from CDN and Chart.js #}
+
+{% block content %}
+<div id="sbom_dasboard">
+<div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">SBOM Overview</h2>
+        <div class="flex items-center space-x-4">
+            <div id="vscode-status-display" class="px-3 py-1 rounded-full text-sm font-semibold" aria-live="polite">
+                Status: <span id="statusText">Loading...</span>
+            </div>
+            <button id="showStatusBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200">
+                Refresh Status
+            </button>
+        </div>
+    </div>
+
+    <!-- Current SBOM Display Info -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">Current SBOM: <span id="currentSbomProjectName" class="font-bold">No SBOM Loaded</span></h3>
+        <p class="text-sm text-gray-500">Last Scanned: <span id="currentSbomTimestamp">N/A</span></p>
+    </div>
+
+    <!-- Graphs Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Component Licenses</h3>
+            <canvas id="licenseChart" role="img" aria-label="Pie chart showing software component licenses distribution"></canvas>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Vulnerability Severity</h3>
+            <canvas id="vulnerabilityChart" role="img" aria-label="Bar chart showing distribution of vulnerabilities by severity"></canvas>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Dependency Depth</h3>
+            <canvas id="dependencyChart" role="img" aria-label="Line chart showing number of components by dependency depth"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-gray-100 rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Upload New SBOM Source</h3>
+        <form id="sbomUploadForm" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label for="project_name" class="block text-sm font-medium text-gray-700">Project Name (Optional):</label>
+                <input type="text" id="project_name" name="project_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="e.g., My Web App v1.0">
+            </div>
+            <div>
+                <label for="upload_type" class="block text-sm font-medium text-gray-700">Select Upload Type:</label>
+                <select id="upload_type" name="upload_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2">
+                    <option value="">-- Please Select --</option>
+                    <option value="zip_project">Upload ZIP of entire project</option>
+                    <option value="dependency_file">Upload dependency file(s) (e.g., package-lock.json, requirements.txt)</option>
+                    <option value="docker_tar">Upload Docker image (tar format)</option>
+                    <option value="existing_sbom_json">Upload existing SBOM (JSON format)</option>
+                </select>
+            </div>
+            <div class="flex items-end space-x-2"> {# Use flex to align file input and button #}
+                <div class="flex-grow">
+                    <label for="sbom_file" class="block text-sm font-medium text-gray-700">Choose File:</label>
+                    <input type="file" id="sbom_file" name="sbom_file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                {# NEW: Clear File Button #}
+                <button type="button" id="clearFileBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-sm hover:bg-gray-300 transition duration-200 text-sm h-fit">
+                    Clear
+                </button>
+            </div>
+            <button type="submit" id="uploadSbomBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200">
+                Generate SBOM
+            </button>
+            <div id="uploadStatusMessage" class="mt-2 text-sm text-gray-600"></div>
+        </form>
+    </div>
+</div>
+    <div class="bg-gray-50 p-4 rounded-lg shadow-md overflow-x-auto">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Software Components</h3>
+        <div class="flex flex-wrap gap-4 mb-4 items-center">
+            <div class="flex items-center space-x-2">
+                <label for="licenseFilterSelect" class="text-sm font-medium text-gray-700">Filter by License:</label>
+                <select id="licenseFilterSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-1">
+                    <option value="">All Licenses</option>
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            <button id="resetFiltersBtn" class="px-4 py-2 bg-gray-600 text-white rounded-lg shadow-sm hover:bg-gray-700 transition duration-200 text-sm">
+                Reset Filters
+            </button>
+        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">Component Name</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">License</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vulnerabilities</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">Supplier</th>
+                </tr>
+            </thead>
+            <tbody id="componentsTableBody" class="bg-white divide-y divide-gray-200">
+                <tr id="table-loading-row">
+                    <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Loading components...</td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="paginationControls" class="flex justify-center items-center mt-4 space-x-4">
+            <button id="prevPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-sm hover:bg-blue-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                Previous
+            </button>
+            <span id="pageInfo" class="text-sm font-medium text-gray-700">Page 1 of 1</span>
+            <button id="nextPageBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-sm hover:bg-blue-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    const statusDisplay = document.getElementById('vscode-status-display');
+    const statusText = document.getElementById('statusText');
+    const showStatusBtn = document.getElementById('showStatusBtn');
+    const componentsTableBody = document.getElementById('componentsTableBody');
+    const currentSbomProjectName = document.getElementById('currentSbomProjectName');
+    const currentSbomTimestamp = document.getElementById('currentSbomTimestamp');
+    
+    const fileInput = document.getElementById('sbom_file'); 
+    const clearFileBtn = document.getElementById('clearFileBtn');
+
+    const sbomUploadForm = document.getElementById('sbomUploadForm');
+    const uploadSbomBtn = document.getElementById('uploadSbomBtn');
+    const uploadStatusMessage = document.getElementById('uploadStatusMessage');
+
+    const paginationControls = document.getElementById('paginationControls');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const pageInfo = document.getElementById('pageInfo');
+
+    const licenseFilterSelect = document.getElementById('licenseFilterSelect');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+    const currentUserId = String({{ user_id }}); 
+    const socket = io();
+
+    let licenseChartInstance;
+    let vulnerabilityChartInstance;
+    let dependencyChartInstance;
+
+let allComponents = [];
+    const rowsPerPage = 15;
+    let currentPage = 1;
+
+    
+    function updateStatusDisplay(data) {
+        statusDisplay.classList.remove('bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800', 'bg-yellow-200', 'text-yellow-800');
+        
+        if (data.status === 'connected') {
+            statusDisplay.classList.add('bg-green-200', 'text-green-800');
+            statusText.textContent = 'Connected';
+        } else if (data.status === 'disconnected') {
+            statusDisplay.classList.add('bg-red-200', 'text-red-800');
+            statusText.textContent = 'Disconnected';
+        } else if (data.status === 'reconnecting') {
+            statusDisplay.classList.add('bg-yellow-200', 'text-yellow-800');
+            statusText.textContent = 'Reconnecting...';
+        } else if (data.status === 'error') {
+            statusDisplay.classList.add('bg-red-200', 'text-red-800');
+            statusText.textContent = 'Error';
+        }
+        console.log('VS Code Extension Status (SocketIO):', data.status, 'Last updated:', data.last_updated);
+    }
+
+    async function fetchConnectionStatus() {
+        console.log("Fetching VS Code connection status...");
+        try {
+            const response = await fetch('/api/get_connection_status');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            updateStatusDisplay(data);
+        } catch (error) {
+            console.error('Error fetching connection status:', error);
+            updateStatusDisplay({ status: 'error', last_updated: new Date().toISOString() });
+        }
+    }
+
+    async function fetchAndRenderSbomData() {
+        console.log("Fetching and rendering SBOM data...");
+        componentsTableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Loading components...</td>
+            </tr>
+        `;
+        currentSbomProjectName.textContent = 'Loading...';
+        currentSbomTimestamp.textContent = 'N/A';
+        paginationControls.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/get_latest_sbom_data');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const sbomData = await response.json();
+            console.log("Fetched SBOM Data:", sbomData);
+
+            currentSbomProjectName.textContent = sbomData.project_name || 'No Data Available';
+            currentSbomTimestamp.textContent = sbomData.sbom_timestamp ? new Date(sbomData.sbom_timestamp).toLocaleString() : 'N/A';
+
+            allComponents = sbomData.components || [];
+            currentPage = 1;
+
+            displayTablePage(currentPage);
+
+            const vulData = sbomData.vulnerability_chart || { labels: ['Critical', 'High', 'Medium', 'Low'], data: [0, 0, 0, 0] };
+            const depData = sbomData.dependency_chart || { labels: ['Depth 1', 'Depth 2', 'Depth 3', 'Depth 4+'], data: [0, 0, 0, 0] };
+            renderCharts(sbomData.license_chart, vulData, depData);
+
+        } catch (error) {
+            console.error('Error fetching and rendering SBOM data:', error);
+            componentsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-red-500 text-center">Error loading SBOM data. Please try again.</td>
+                </tr>
+            `;
+            currentSbomProjectName.textContent = 'Error';
+            currentSbomTimestamp.textContent = 'Error';
+            paginationControls.style.display = 'none';
+        }
+    }
+
+    function renderCharts(licenseData, vulnerabilityData, dependencyData) {
+        console.log("Rendering charts with data:", licenseData, vulnerabilityData, dependencyData);
+        if (licenseChartInstance) licenseChartInstance.destroy();
+        if (vulnerabilityChartInstance) vulnerabilityChartInstance.destroy();
+        if (dependencyChartInstance) dependencyChartInstance.destroy();
+
+        const licenseCtx = document.getElementById('licenseChart').getContext('2d');
+        licenseChartInstance = new Chart(licenseCtx, {
+            type: 'pie',
+            data: {
+                labels: licenseData.labels,
+                datasets: [{
+                    label: '# of Components',
+                    data: licenseData.data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)',
+                        'rgba(199, 199, 199, 0.7)', 'rgba(83, 102, 255, 0.7)', 'rgba(255, 99, 71, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)',
+                        'rgba(199, 199, 199, 1)', 'rgba(83, 102, 255, 1)', 'rgba(255, 99, 71, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: false }
+                }
+            }
+        });
+
+        const vulnerabilityCtx = document.getElementById('vulnerabilityChart').getContext('2d');
+        vulnerabilityChartInstance = new Chart(vulnerabilityCtx, {
+            type: 'bar',
+            data: {
+                labels: vulnerabilityData.labels,
+                datasets: [{
+                    label: '# of Vulnerabilities',
+                    data: vulnerabilityData.data,
+                    backgroundColor: [
+                        'rgba(255, 0, 0, 0.7)',    // Critical
+                        'rgba(255, 165, 0, 0.7)',  // High
+                        'rgba(255, 255, 0, 0.7)',  // Medium
+                        'rgba(144, 238, 144, 0.7)',// Low
+                        //'rgba(0, 128, 0, 0.7)'     // None
+                    ],
+                    borderColor: [
+                        'rgba(255, 0, 0, 1)',
+                        'rgba(255, 165, 0, 1)',
+                        'rgba(255, 255, 0, 1)',
+                        'rgba(144, 238, 144, 1)',
+                       // 'rgba(0, 128, 0, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        const dependencyCtx = document.getElementById('dependencyChart').getContext('2d');
+        dependencyChartInstance = new Chart(dependencyCtx, {
+            type: 'line',
+            data: {
+                labels: dependencyData.labels,
+                datasets: [{
+                    label: '# of Components',
+                    data: dependencyData.data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    function displayTablePage(page) {
+        console.log("Populating table with components for page:", page);
+        currentPage = page;
+        componentsTableBody.innerHTML = '';
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const paginatedComponents = allComponents.slice(startIndex, endIndex);
+
+        if (paginatedComponents.length > 0) {
+            paginatedComponents.forEach(component => {
+                const row = componentsTableBody.insertRow();
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${component.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${component.version}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${component.license}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${component.vulnerabilities|| 0}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${component.supplier || 'N/A'}</td>
+                `;
+            });
+        } else {
+            componentsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No components found. Upload a file to generate an SBOM.</td>
+                </tr>
+            `;
+        }
+        updatePaginationControls();
+    }
+
+    function updatePaginationControls() {
+        const totalPages = Math.ceil(allComponents.length / rowsPerPage);
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPages || allComponents.length === 0;
+
+        if (totalPages > 1) {
+            paginationControls.style.display = 'flex';
+        } else {
+            paginationControls.style.display = 'none';
+        }
+    }
+
+    socket.on('connect', () => {
+        console.log('Socket.IO connected to server.');
+        socket.emit('join_user_room', { user_id: currentUserId });
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Socket.IO disconnected from server.');
+        fetchConnectionStatus();
+    });
+
+    socket.on('reconnect_attempt', (attemptNumber) => {
+        console.log(`Socket.IO attempting to reconnect (attempt ${attemptNumber})...`);
+        fetchConnectionStatus();
+    });
+
+    socket.on('reconnecting', (attemptNumber) => {
+        console.log(`Socket.IO reconnecting (attempt ${attemptNumber})...`);
+        fetchConnectionStatus();
+    });
+
+    socket.on('reconnect', (attemptNumber) => {
+        console.log(`Socket.IO successfully reconnected after ${attemptNumber} attempts.`);
+
+        socket.emit('join_user_room', { user_id: currentUserId });
+
+        //updateStatusDisplay({ status: 'connected', last_updated: new Date().toISOString() });
+        fetchConnectionStatus();
+    });
+
+    socket.on('reconnect_error', (error) => {
+        console.error('Socket.IO reconnection error:', error);
+        updateStatusDisplay({ status: 'error', last_updated: new Date().toISOString() });
+    });
+
+    socket.on('reconnect_failed', () => {
+        console.error('Socket.IO reconnection failed after all attempts.');
+        //updateStatusDisplay({ status: 'disconnected', last_updated: new Date().toISOString() });
+        fetchConnectionStatus();
+    });
+
+
+    socket.on('vscode_status_update', (data) => {
+        console.log('Received real-time VS Code status update:', data);
+        fetchConnectionStatus();
+    });
+
+    socket.on('new_sbom_available', (data) => {
+        console.log('Received new SBOM available event:', data);
+        if (String(data.user_id) === currentUserId) { 
+            console.log("New SBOM event for current user. Fetching and rendering new data...");
+            fetchAndRenderSbomData();
+            uploadStatusMessage.textContent = 'SBOM generated and dashboard updated!';
+            uploadStatusMessage.classList.remove('text-red-500');
+            uploadStatusMessage.classList.add('text-green-500');
+            uploadSbomBtn.disabled = false;
+            uploadSbomBtn.textContent = 'Generate SBOM';
+            fileInput.value = '';
+            
+            uploadStatusMessage.style.opacity = '1';
+            uploadStatusMessage.classList.remove('fade-out');
+            setTimeout(() => {
+                uploadStatusMessage.classList.add('fade-out');
+                setTimeout(() => {
+                    uploadStatusMessage.textContent = '';
+                    uploadStatusMessage.classList.remove('fade-out');
+                    uploadStatusMessage.style.opacity = ''; 
+                }, 1000); 
+            }, 4000); 
+        } else {
+            console.log("New SBOM event received, but not for current user. Ignoring.");
+        }
+    });
+
+    socket.on('sbom_processing_error', (data) => {
+        console.error('Received SBOM processing error event:', data);
+        if (String(data.user_id) === currentUserId) {
+            uploadStatusMessage.textContent = `Error: ${data.message}`;
+            uploadStatusMessage.classList.remove('text-green-500', 'text-blue-500');
+            uploadStatusMessage.classList.add('text-red-500');
+            uploadSbomBtn.disabled = false;
+            uploadSbomBtn.textContent = 'Generate SBOM';
+
+            uploadStatusMessage.style.opacity = '1';
+            uploadStatusMessage.classList.remove('fade-out');
+            setTimeout(() => {
+                uploadStatusMessage.classList.add('fade-out');
+                setTimeout(() => {
+                    uploadStatusMessage.textContent = '';
+                    uploadStatusMessage.classList.remove('fade-out');
+                    uploadStatusMessage.style.opacity = '';
+                }, 1000);
+            }, 4000);
+        }
+    });
+
+
+    sbomUploadForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const uploadTypeSelect = document.getElementById('upload_type');
+        const projectNameInput = document.getElementById('project_name');
+
+        const file = fileInput.files[0];
+        const uploadType = uploadTypeSelect.value;
+        const projectName = projectNameInput.value;
+
+        if (!file) {
+            uploadStatusMessage.textContent = 'Please select a file to upload.';
+            uploadStatusMessage.classList.remove('text-green-500');
+            uploadStatusMessage.classList.add('text-red-500');
+            return;
+        }
+
+        if (!uploadType) {
+            uploadStatusMessage.textContent = 'Please select an upload type.';
+            uploadStatusMessage.classList.remove('text-green-500');
+            uploadStatusMessage.classList.add('text-red-500');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('sbom_file', file);
+        formData.append('upload_type', uploadType);
+        formData.append('project_name', projectName);
+
+        uploadSbomBtn.disabled = true;
+        uploadSbomBtn.textContent = 'Processing...';
+        uploadStatusMessage.textContent = 'Uploading and generating SBOM. This may take a moment...';
+        uploadStatusMessage.classList.remove('text-green-500', 'text-red-500');
+        uploadStatusMessage.classList.add('text-blue-500');
+        uploadStatusMessage.style.opacity = '1';
+
+        try {
+            const response = await fetch('/api/upload_sbom', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Upload initiated successfully:", result);
+                // Frontend is now waiting for SocketIO event for final update
+            } else {
+                throw new Error(result.message || 'Failed to initiate SBOM processing.');
+            }
+        } catch (error) {
+            console.error('Error during SBOM upload initiation:', error);
+            uploadStatusMessage.textContent = `Error: ${error.message}`;
+            uploadStatusMessage.classList.remove('text-green-500', 'text-blue-500');
+            uploadStatusMessage.classList.add('text-red-500');
+            uploadSbomBtn.disabled = false;
+            uploadSbomBtn.textContent = 'Generate SBOM';
+            
+            uploadStatusMessage.style.opacity = '1';
+            uploadStatusMessage.classList.remove('fade-out');
+            setTimeout(() => {
+                uploadStatusMessage.classList.add('fade-out');
+                setTimeout(() => {
+                    uploadStatusMessage.textContent = '';
+                    uploadStatusMessage.classList.remove('fade-out');
+                    uploadStatusMessage.style.opacity = '';
+                }, 1000);
+            }, 4000);
+        }
+    });
+
+    clearFileBtn.addEventListener('click', () => {
+        const uploadTypeSelect = document.getElementById('upload_type');
+        const projectNameInput = document.getElementById('project_name');
+        fileInput.value = '';
+        projectNameInput.value = '';
+        uploadTypeSelect.value = '';
+        uploadStatusMessage.textContent = 'File cleared.';
+        uploadStatusMessage.classList.remove('text-green-500', 'text-red-500', 'text-blue-500');
+        uploadStatusMessage.classList.add('text-gray-600');
+        uploadStatusMessage.style.opacity = '1';
+
+        setTimeout(() => {
+            uploadStatusMessage.classList.add('fade-out');
+            setTimeout(() => {
+                uploadStatusMessage.textContent = '';
+                uploadStatusMessage.classList.remove('fade-out');
+                uploadStatusMessage.style.opacity = '';
+            }, 1000);
+        }, 4000);
+    });
+
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            displayTablePage(currentPage - 1);
+        }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(allComponents.length / rowsPerPage);
+        if (currentPage < totalPages) {
+            displayTablePage(currentPage + 1);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchConnectionStatus();
+        fetchAndRenderSbomData();
+    });
+
+    showStatusBtn.addEventListener('click', fetchConnectionStatus);
+</script>
+
+{# Add a simple CSS rule for the fade-out transition #}
+<style>
+    .fade-out {
+        opacity: 0;
+        transition: opacity 1s ease-out; /* Adjust duration as needed */
+    }
+    #sbom_dasboard {
+        padding: 20px;
+    }
+</style>
+{% endblock %}

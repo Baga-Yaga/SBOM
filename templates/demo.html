@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %} SBOM | Vulnerability Assessment {% endblock %}
+
+{% block content %}
+<body class="h-full text-gray-800">
+
+  <!-- Graph Placeholder -->
+  <section class="w-full shadow-sm rounded-lg border border-gray-200 p-6 mb-8" x-data="graphComponent()">
+    <h2 class="text-xl font-semibold text-gray-700 mb-2">Static Code Analysis Graph</h2>
+    
+    <!-- Graph Container -->
+    <div id="cy-container" class="w-full h-[600px] border border-gray-300 rounded-lg overflow-hidden relative">
+      <div id="cy" class="w-full h-full bg-blue-100" > </div>
+
+      <!-- Loading/Error Overlay -->
+      <div x-show="isLoading" class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center rounded-lg">
+          <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+      </div>
+      <div x-show="errorMessage" x-text="errorMessage" class="absolute inset-0 bg-red-100 text-red-700 p-4 flex items-center justify-center rounded-lg"></div>
+    </div>
+  </section>
+
+  <!-- Vulnerability Table Section -->
+  <section class="bg-white shadow-sm rounded-lg border border-gray-200 p-6" 
+           x-data="vulnerabilityApp()" 
+           x-init="init()">
+
+    <!-- Header + Filter -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+      <h2 class="text-xl font-semibold text-gray-700 mb-2 sm:mb-0">Vulnerabilities Found</h2>
+
+      <select x-model="selectedSeverity"
+              class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200">
+        <option value="All">All Severities</option>
+        <option value="Critical">Critical</option>
+        <option value="High">High</option>
+        <option value="Moderate">Moderate</option>
+        <option value="Low">Low</option>
+      </select>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-3">
+      <input type="text"
+             x-model="searchTerm"
+             placeholder="Filter by name, CVE, or description..."
+             class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200">
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Risk Level</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">CVSS</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">CVE</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Summary</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Affected Software</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100 bg-white">
+          <template x-for="(vuln, index) in paginatedVulnerabilities" :key="index">
+            <tr class="hover:bg-gray-50">
+              
+              <!-- Severity -->
+              <td class="px-4 py-3 font-semibold"
+                  :class="{
+                    'text-red-600': vuln.severity === 'Critical' || vuln.severity === 'High',
+                    'text-yellow-600': vuln.severity === 'Moderate',
+                    'text-green-600': vuln.severity === 'Low'
+                  }"
+                  x-text="vuln.severity ? vuln.severity.toUpperCase() : 'N/A'">
+              </td>
+
+              <!-- CVSS -->
+              <td class="px-4 py-3 text-sm text-gray-700" x-text="vuln.CVSS_V3 || vuln.CVSS_V4 || 'N/A'"></td>
+
+              <!-- CVE -->
+              <td class="px-4 py-3 text-sm text-blue-600">
+                <template x-if="vuln.cve">
+                  <a :href="'https://nvd.nist.gov/vuln/detail/' + vuln.cve" 
+                     target="_blank" 
+                     class="hover:underline"
+                     x-text="vuln.cve">
+                  </a>
+                </template>
+                <template x-if="!vuln.cve">
+                  <span class="text-gray-500">N/A</span>
+                </template>
+              </td>
+
+              <!-- Summary (with Read More / Less) -->
+              <td class="px-4 py-3 text-sm text-gray-700 align-top" x-data="{ expanded: false }">
+                <template x-if="vuln.details">
+                  <div>
+                    <!-- Collapsed view -->
+                    <div x-show="!expanded">
+                      <span 
+                        x-text="vuln.details.split(' ').length > 100 
+                          ? vuln.details.split(' ').slice(0, 100).join(' ') + '...' 
+                          : vuln.details">
+                      </span>
+                      <template x-if="vuln.details.split(' ').length > 100">
+                        <button @click="expanded = true" class="text-blue-500 ml-1 hover:underline">Read more</button>
+                      </template>
+                    </div>
+                    <!-- Expanded view -->
+                    <div x-show="expanded">
+                      <span x-text="vuln.details"></span>
+                      <button @click="expanded = false" class="text-blue-500 ml-1 hover:underline">Read less</button>
+                    </div>
+                  </div>
+                </template>
+                <template x-if="!vuln.details">
+                  <span class="text-gray-500">No summary available.</span>
+                </template>
+              </td>
+
+              <!-- Software -->
+              <td class="px-4 py-3 text-sm text-gray-700" x-text="vuln.name || 'N/A'"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
+      <button @click="prevPage" 
+              :disabled="currentPage === 1" 
+              class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300">
+        Prev
+      </button>
+      <span>Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span></span>
+      <button @click="nextPage" 
+              :disabled="currentPage === totalPages" 
+              class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300">
+        Next
+      </button>
+    </div>
+
+  </section>
+
+  <!-- Alpine.js Component -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
+  <script>
+
+    function initializeGraph(data) {
+        if (!window.cytoscape) {
+            console.error("Cytoscape.js is not loaded.");
+            return;
+        }
+        
+        // 1. Prepare data: Store original label and append [+] for file nodes
+        data.forEach(element => {
+            if (element.group === 'nodes' && element.data.type === 'file') {
+                element.data.original_label = element.data.label;
+                element.data.label += ' [+]';
+            }
+        });
+
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: data,
+            style: [
+                // General node style
+                { selector: 'node', style: { 'label': 'data(label)', 'color': '#fff', 'text-outline-color': '#555', 'text-outline-width': '2px', 'text-valign': 'center', 'font-size': '12px' }},
+                // Type-specific styles
+                { selector: 'node[type="language"]', style: { 'background-color': '#7E57C2', 'width': 90, 'height': 90, 'font-size': '16px', 'text-outline-color': '#7E57C2' }},
+                { selector: 'node[type="file"]', style: { 'background-color': '#64B5F6', 'width': 70, 'height': 70, 'text-outline-color': '#64B5F6' }},
+                { selector: 'node[type="symbol"]', style: { 'background-color': '#81C784', 'shape': 'round-rectangle', 'width': 'label', 'height': 30, 'padding': '8px', 'font-size': '10px', 'text-outline-color': '#81C784' }},
+                // Edge style
+                { selector: 'edge', style: { 'line-color': '#ccc', 'width': 1.5, 'curve-style': 'bezier', 'target-arrow-shape': 'triangle', 'target-arrow-color': '#ccc' }}
+            ],
+            layout: {
+                name: 'cose',
+                idealEdgeLength: 100,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: false,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }
+        });
+        
+        // Hide symbol nodes initially
+        cy.nodes('[type="symbol"]').hide();
+
+        // Add click handler to file nodes to toggle symbols/imports
+        cy.on('tap', 'node[type="file"]', function(event) {
+            const fileNode = event.target;
+            // Uses outgoers because file nodes are the source of the edge pointing to symbol nodes
+            const children = fileNode.outgoers('[type="symbol"]');
+
+            if (!children.length) {
+                return; // No children to expand/collapse
+            }
+
+            // Check visibility by looking at the CSS display style after Cytoscape's .hide()
+            const isHidden = children[0].style('display') === 'none';
+
+            if (isHidden) {
+                // Expand: show children and update label to indicate collapse option
+                children.show();
+                fileNode.data('label', fileNode.data('original_label') + ' [-]');
+            } else {
+                // Collapse: hide children and update label to indicate expand option
+                children.hide();
+                fileNode.data('label', fileNode.data('original_label') + ' [+]');
+            }
+        });
+    }
+
+    function graphComponent() {
+        return {
+            sbomId: {{ sbom_id if sbom_id else 0 }},
+            isLoading: true,
+            errorMessage: null,
+
+            async fetchGraphData() {
+                this.isLoading = true;
+                this.errorMessage = null;
+                try {
+                    // Fetch graph data from the backend
+                    const response = await fetch(`/api/graph_data/${this.sbomId}`);
+                    const data = await response.json();
+                    
+                    if (!response.ok || data.error) {
+                        throw new Error(data.error || 'Failed to load graph data.');
+                    }
+                    
+                    // Initialize the graph visualization using the user's preferred logic
+                    initializeGraph(data.elements || data); // Expects the array of elements directly
+                } catch (error) {
+                    console.error('Error fetching graph data:', error);
+                    this.errorMessage = `Could not load code analysis graph: ${error.message}. Ensure a project zip was uploaded.`;
+                    // Clear the container if an error occurs
+                    document.getElementById('cy').innerHTML = '';
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+            init() {
+                if (this.sbomId > 0) this.fetchGraphData();
+                else this.isLoading = false;
+            }
+        }
+    }
+
+
+    // --- Vulnerability Table Logic (Kept mostly as is) ---
+    function vulnerabilityApp() {
+      return {
+        sbomId: {{ sbom_id if sbom_id else 0 }},
+        vulnerabilities: [],
+        isLoading: true,
+        errorMessage: null,
+        searchTerm: '',
+        selectedSeverity: 'All',
+        currentPage: 1,
+        pageSize: 10,
+
+        async fetchVulnerabilityDetails() {
+          this.isLoading = true;
+          try {
+            const response = await fetch(`/api/vulnerability_details/${this.sbomId}`);
+            const data = await response.json();
+            this.vulnerabilities = response.ok ? data : [];
+          } catch (error) {
+            console.error('Error fetching vulnerabilities:', error);
+            this.vulnerabilities = [];
+          } finally {
+            this.isLoading = false;
+          }
+        },
+        
+        get filteredVulnerabilities() {
+          let filtered = this.vulnerabilities;
+          const term = this.searchTerm.toLowerCase();
+          
+          // 1. Filter by Search Term
+          if (term) {
+            filtered = filtered.filter(v =>
+              (v.name && v.name.toLowerCase().includes(term)) ||
+              (v.cve && v.cve.toLowerCase().includes(term)) ||
+              (v.details && v.details.toLowerCase().includes(term))
+            );
+          }
+          
+          // 2. Filter by Severity
+          if (this.selectedSeverity !== 'All') {
+            filtered = filtered.filter(v => v.severity === this.selectedSeverity);
+          }
+          
+          return filtered;
+        },
+
+
+        get totalPages() {
+          return Math.ceil(this.filteredVulnerabilities.length / this.pageSize) || 1;
+        },
+
+        get paginatedVulnerabilities() {
+          const start = (this.currentPage - 1) * this.pageSize;
+          return this.filteredVulnerabilities.slice(start, start + this.pageSize);
+        },
+
+        nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; },
+        prevPage() { if (this.currentPage > 1) this.currentPage--; },
+
+        init() {
+          if (this.sbomId > 0) this.fetchVulnerabilityDetails();
+          else this.isLoading = false;
+        },
+      }
+    }
+  </script>
+</body>
+{% endblock %}

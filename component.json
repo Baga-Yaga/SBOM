@@ -1,0 +1,1350 @@
+{
+  "components": [
+    {
+      "license": "MIT",
+      "name": "@babel/helper-string-parser",
+      "purl": "pkg:npm/%40babel/helper-string-parser@7.24.6",
+      "supplier": "",
+      "type": "library",
+      "version": "7.24.6",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "@babel/helper-validator-identifier",
+      "purl": "pkg:npm/%40babel/helper-validator-identifier@7.24.6",
+      "supplier": "",
+      "type": "library",
+      "version": "7.24.6",
+      "vulnerabilities": ""
+    },
+    {
+    "license": "MIT",
+    "name": "lodash",
+    "purl": "pkg:npm/lodash@4.17.15",
+    "supplier": "",
+    "type": "library",
+    "version": "4.17.15",
+    "vulnerabilities": ""
+    },
+    {
+    "license": "MIT",
+    "name": "axios",
+    "purl": "pkg:npm/axios@0.19.0",
+    "supplier": "",
+    "type": "library",
+    "version": "0.19.0",
+    "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "@babel/parser",
+      "purl": "pkg:npm/%40babel/parser@7.24.6",
+      "supplier": "",
+      "type": "library",
+      "version": "7.24.6",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "@babel/types",
+      "purl": "pkg:npm/%40babel/types@7.24.6",
+      "supplier": "",
+      "type": "library",
+      "version": "7.24.6",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "@mongodb-js/saslprep",
+      "purl": "pkg:npm/%40mongodb-js/saslprep@1.2.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "@types/webidl-conversions",
+      "purl": "pkg:npm/%40types/webidl-conversions@7.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "7.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "@types/whatwg-url",
+      "purl": "pkg:npm/%40types/whatwg-url@11.0.5",
+      "supplier": "",
+      "type": "library",
+      "version": "11.0.5",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "accepts",
+      "purl": "pkg:npm/accepts@1.3.8",
+      "supplier": "",
+      "type": "library",
+      "version": "1.3.8",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "acorn",
+      "purl": "pkg:npm/acorn@7.4.1",
+      "supplier": "",
+      "type": "library",
+      "version": "7.4.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "No License Detected",
+      "name": "actions/checkout",
+      "purl": "pkg:github/actions/checkout@v4",
+      "supplier": "",
+      "type": "library",
+      "version": "v4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "array-flatten",
+      "purl": "pkg:npm/array-flatten@1.1.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "asap",
+      "purl": "pkg:npm/asap@2.0.6",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.6",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "assert-never",
+      "purl": "pkg:npm/assert-never@1.2.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "babel-walk",
+      "purl": "pkg:npm/babel-walk@3.0.0-canary-5",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.0-canary-5",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "basic-auth",
+      "purl": "pkg:npm/basic-auth@2.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "body-parser",
+      "purl": "pkg:npm/body-parser@1.20.3",
+      "supplier": "",
+      "type": "library",
+      "version": "1.20.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "Apache-2.0",
+      "name": "bson",
+      "purl": "pkg:npm/bson@6.10.3",
+      "supplier": "",
+      "type": "library",
+      "version": "6.10.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "bytes",
+      "purl": "pkg:npm/bytes@3.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "bytes",
+      "purl": "pkg:npm/bytes@3.1.2",
+      "supplier": "",
+      "type": "library",
+      "version": "3.1.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "call-bind",
+      "purl": "pkg:npm/call-bind@1.0.7",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.7",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "character-parser",
+      "purl": "pkg:npm/character-parser@2.2.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.2.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "compressible",
+      "purl": "pkg:npm/compressible@2.0.18",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.18",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "compression",
+      "purl": "pkg:npm/compression@1.7.4",
+      "supplier": "",
+      "type": "library",
+      "version": "1.7.4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "constantinople",
+      "purl": "pkg:npm/constantinople@4.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "4.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "content-disposition",
+      "purl": "pkg:npm/content-disposition@0.5.4",
+      "supplier": "",
+      "type": "library",
+      "version": "0.5.4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "content-type",
+      "purl": "pkg:npm/content-type@1.0.5",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.5",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "cookie",
+      "purl": "pkg:npm/cookie@0.4.1",
+      "supplier": "",
+      "type": "library",
+      "version": "0.4.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "cookie-parser",
+      "purl": "pkg:npm/cookie-parser@1.4.6",
+      "supplier": "",
+      "type": "library",
+      "version": "1.4.6",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "cookie-signature",
+      "purl": "pkg:npm/cookie-signature@1.0.6",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.6",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "debug",
+      "purl": "pkg:npm/debug@2.6.9",
+      "supplier": "",
+      "type": "library",
+      "version": "2.6.9",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "debug",
+      "purl": "pkg:npm/debug@4.3.5",
+      "supplier": "",
+      "type": "library",
+      "version": "4.3.5",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "define-data-property",
+      "purl": "pkg:npm/define-data-property@1.1.4",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "depd",
+      "purl": "pkg:npm/depd@2.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "destroy",
+      "purl": "pkg:npm/destroy@1.2.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "doctypes",
+      "purl": "pkg:npm/doctypes@1.1.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "ee-first",
+      "purl": "pkg:npm/ee-first@1.1.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "encodeurl",
+      "purl": "pkg:npm/encodeurl@1.0.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "encodeurl",
+      "purl": "pkg:npm/encodeurl@2.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "es-define-property",
+      "purl": "pkg:npm/es-define-property@1.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "es-errors",
+      "purl": "pkg:npm/es-errors@1.3.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.3.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "escape-html",
+      "purl": "pkg:npm/escape-html@1.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "etag",
+      "purl": "pkg:npm/etag@1.8.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.8.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "express",
+      "purl": "pkg:npm/express@4.21.2",
+      "supplier": "",
+      "type": "library",
+      "version": "4.21.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "express-async-handler",
+      "purl": "pkg:npm/express-async-handler@1.2.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "No License Detected",
+      "name": "express-locallibrary-tutorial",
+      "purl": "pkg:npm/express-locallibrary-tutorial@0.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "0.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "express-rate-limit",
+      "purl": "pkg:npm/express-rate-limit@7.3.0",
+      "supplier": "",
+      "type": "library",
+      "version": "7.3.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "express-validator",
+      "purl": "pkg:npm/express-validator@7.1.0",
+      "supplier": "",
+      "type": "library",
+      "version": "7.1.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "finalhandler",
+      "purl": "pkg:npm/finalhandler@1.3.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.3.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "forwarded",
+      "purl": "pkg:npm/forwarded@0.2.0",
+      "supplier": "",
+      "type": "library",
+      "version": "0.2.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "fresh",
+      "purl": "pkg:npm/fresh@0.5.2",
+      "supplier": "",
+      "type": "library",
+      "version": "0.5.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "function-bind",
+      "purl": "pkg:npm/function-bind@1.1.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "get-intrinsic",
+      "purl": "pkg:npm/get-intrinsic@1.2.4",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "No License Detected",
+      "name": "github/codeql-action/analyze",
+      "purl": "pkg:github/github/codeql-action@v3#analyze",
+      "supplier": "",
+      "type": "library",
+      "version": "v3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "No License Detected",
+      "name": "github/codeql-action/init",
+      "purl": "pkg:github/github/codeql-action@v3#init",
+      "supplier": "",
+      "type": "library",
+      "version": "v3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "gopd",
+      "purl": "pkg:npm/gopd@1.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "has-property-descriptors",
+      "purl": "pkg:npm/has-property-descriptors@1.0.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "has-proto",
+      "purl": "pkg:npm/has-proto@1.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "has-symbols",
+      "purl": "pkg:npm/has-symbols@1.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "has-tostringtag",
+      "purl": "pkg:npm/has-tostringtag@1.0.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "hasown",
+      "purl": "pkg:npm/hasown@2.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "helmet",
+      "purl": "pkg:npm/helmet@7.1.0",
+      "supplier": "",
+      "type": "library",
+      "version": "7.1.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "http-errors",
+      "purl": "pkg:npm/http-errors@2.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "iconv-lite",
+      "purl": "pkg:npm/iconv-lite@0.4.24",
+      "supplier": "",
+      "type": "library",
+      "version": "0.4.24",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "ISC",
+      "name": "inherits",
+      "purl": "pkg:npm/inherits@2.0.4",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "ipaddr.js",
+      "purl": "pkg:npm/ipaddr.js@1.9.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.9.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "is-core-module",
+      "purl": "pkg:npm/is-core-module@2.13.1",
+      "supplier": "",
+      "type": "library",
+      "version": "2.13.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "is-expression",
+      "purl": "pkg:npm/is-expression@4.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "4.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "is-promise",
+      "purl": "pkg:npm/is-promise@2.2.2",
+      "supplier": "",
+      "type": "library",
+      "version": "2.2.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "is-regex",
+      "purl": "pkg:npm/is-regex@1.1.4",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "js-stringify",
+      "purl": "pkg:npm/js-stringify@1.0.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "jstransformer",
+      "purl": "pkg:npm/jstransformer@1.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "Apache-2.0",
+      "name": "kareem",
+      "purl": "pkg:npm/kareem@2.6.3",
+      "supplier": "",
+      "type": "library",
+      "version": "2.6.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "luxon",
+      "purl": "pkg:npm/luxon@3.4.4",
+      "supplier": "",
+      "type": "library",
+      "version": "3.4.4",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "media-typer",
+      "purl": "pkg:npm/media-typer@0.3.0",
+      "supplier": "",
+      "type": "library",
+      "version": "0.3.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "memory-pager",
+      "purl": "pkg:npm/memory-pager@1.5.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.5.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "merge-descriptors",
+      "purl": "pkg:npm/merge-descriptors@1.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "methods",
+      "purl": "pkg:npm/methods@1.1.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "mime",
+      "purl": "pkg:npm/mime@1.6.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.6.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "mime-db",
+      "purl": "pkg:npm/mime-db@1.52.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.52.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "mime-types",
+      "purl": "pkg:npm/mime-types@2.1.35",
+      "supplier": "",
+      "type": "library",
+      "version": "2.1.35",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "Apache-2.0",
+      "name": "mongodb",
+      "purl": "pkg:npm/mongodb@6.12.0",
+      "supplier": "",
+      "type": "library",
+      "version": "6.12.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "Apache-2.0",
+      "name": "mongodb-connection-string-url",
+      "purl": "pkg:npm/mongodb-connection-string-url@3.0.2",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "mongoose",
+      "purl": "pkg:npm/mongoose@8.9.5",
+      "supplier": "",
+      "type": "library",
+      "version": "8.9.5",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "morgan",
+      "purl": "pkg:npm/morgan@1.10.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.10.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "mpath",
+      "purl": "pkg:npm/mpath@0.9.0",
+      "supplier": "",
+      "type": "library",
+      "version": "0.9.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "mquery",
+      "purl": "pkg:npm/mquery@5.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "5.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "ms",
+      "purl": "pkg:npm/ms@2.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "ms",
+      "purl": "pkg:npm/ms@2.1.2",
+      "supplier": "",
+      "type": "library",
+      "version": "2.1.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "ms",
+      "purl": "pkg:npm/ms@2.1.3",
+      "supplier": "",
+      "type": "library",
+      "version": "2.1.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "negotiator",
+      "purl": "pkg:npm/negotiator@0.6.3",
+      "supplier": "",
+      "type": "library",
+      "version": "0.6.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "object-assign",
+      "purl": "pkg:npm/object-assign@4.1.1",
+      "supplier": "",
+      "type": "library",
+      "version": "4.1.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "object-inspect",
+      "purl": "pkg:npm/object-inspect@1.13.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.13.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "on-finished",
+      "purl": "pkg:npm/on-finished@2.3.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.3.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "on-finished",
+      "purl": "pkg:npm/on-finished@2.4.1",
+      "supplier": "",
+      "type": "library",
+      "version": "2.4.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "on-headers",
+      "purl": "pkg:npm/on-headers@1.0.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "parseurl",
+      "purl": "pkg:npm/parseurl@1.3.3",
+      "supplier": "",
+      "type": "library",
+      "version": "1.3.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "path-parse",
+      "purl": "pkg:npm/path-parse@1.0.7",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.7",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "path-to-regexp",
+      "purl": "pkg:npm/path-to-regexp@0.1.12",
+      "supplier": "",
+      "type": "library",
+      "version": "0.1.12",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "promise",
+      "purl": "pkg:npm/promise@7.3.1",
+      "supplier": "",
+      "type": "library",
+      "version": "7.3.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "proxy-addr",
+      "purl": "pkg:npm/proxy-addr@2.0.7",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.7",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug",
+      "purl": "pkg:npm/pug@3.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-attrs",
+      "purl": "pkg:npm/pug-attrs@3.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-code-gen",
+      "purl": "pkg:npm/pug-code-gen@3.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-error",
+      "purl": "pkg:npm/pug-error@2.1.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.1.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-filters",
+      "purl": "pkg:npm/pug-filters@4.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "4.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-lexer",
+      "purl": "pkg:npm/pug-lexer@5.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "5.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-linker",
+      "purl": "pkg:npm/pug-linker@4.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "4.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-load",
+      "purl": "pkg:npm/pug-load@3.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-parser",
+      "purl": "pkg:npm/pug-parser@6.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "6.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-runtime",
+      "purl": "pkg:npm/pug-runtime@3.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-strip-comments",
+      "purl": "pkg:npm/pug-strip-comments@2.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "pug-walk",
+      "purl": "pkg:npm/pug-walk@2.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "punycode",
+      "purl": "pkg:npm/punycode@2.3.1",
+      "supplier": "",
+      "type": "library",
+      "version": "2.3.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "BSD-3-Clause",
+      "name": "qs",
+      "purl": "pkg:npm/qs@6.13.0",
+      "supplier": "",
+      "type": "library",
+      "version": "6.13.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "range-parser",
+      "purl": "pkg:npm/range-parser@1.2.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "raw-body",
+      "purl": "pkg:npm/raw-body@2.5.2",
+      "supplier": "",
+      "type": "library",
+      "version": "2.5.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "resolve",
+      "purl": "pkg:npm/resolve@1.22.8",
+      "supplier": "",
+      "type": "library",
+      "version": "1.22.8",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "safe-buffer",
+      "purl": "pkg:npm/safe-buffer@5.1.2",
+      "supplier": "",
+      "type": "library",
+      "version": "5.1.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "safe-buffer",
+      "purl": "pkg:npm/safe-buffer@5.2.1",
+      "supplier": "",
+      "type": "library",
+      "version": "5.2.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "safer-buffer",
+      "purl": "pkg:npm/safer-buffer@2.1.2",
+      "supplier": "",
+      "type": "library",
+      "version": "2.1.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "send",
+      "purl": "pkg:npm/send@0.19.0",
+      "supplier": "",
+      "type": "library",
+      "version": "0.19.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "serve-static",
+      "purl": "pkg:npm/serve-static@1.16.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.16.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "set-function-length",
+      "purl": "pkg:npm/set-function-length@1.2.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "ISC",
+      "name": "setprototypeof",
+      "purl": "pkg:npm/setprototypeof@1.2.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.2.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "side-channel",
+      "purl": "pkg:npm/side-channel@1.0.6",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.6",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "sift",
+      "purl": "pkg:npm/sift@17.1.3",
+      "supplier": "",
+      "type": "library",
+      "version": "17.1.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "sparse-bitfield",
+      "purl": "pkg:npm/sparse-bitfield@3.0.3",
+      "supplier": "",
+      "type": "library",
+      "version": "3.0.3",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "statuses",
+      "purl": "pkg:npm/statuses@2.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "supports-preserve-symlinks-flag",
+      "purl": "pkg:npm/supports-preserve-symlinks-flag@1.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "to-fast-properties",
+      "purl": "pkg:npm/to-fast-properties@2.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "2.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "toidentifier",
+      "purl": "pkg:npm/toidentifier@1.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "token-stream",
+      "purl": "pkg:npm/token-stream@1.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "tr46",
+      "purl": "pkg:npm/tr46@5.1.0",
+      "supplier": "",
+      "type": "library",
+      "version": "5.1.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "type-is",
+      "purl": "pkg:npm/type-is@1.6.18",
+      "supplier": "",
+      "type": "library",
+      "version": "1.6.18",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "unpipe",
+      "purl": "pkg:npm/unpipe@1.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "utils-merge",
+      "purl": "pkg:npm/utils-merge@1.0.1",
+      "supplier": "",
+      "type": "library",
+      "version": "1.0.1",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "validator",
+      "purl": "pkg:npm/validator@13.12.0",
+      "supplier": "",
+      "type": "library",
+      "version": "13.12.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "vary",
+      "purl": "pkg:npm/vary@1.1.2",
+      "supplier": "",
+      "type": "library",
+      "version": "1.1.2",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "void-elements",
+      "purl": "pkg:npm/void-elements@3.1.0",
+      "supplier": "",
+      "type": "library",
+      "version": "3.1.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "BSD-2-Clause",
+      "name": "webidl-conversions",
+      "purl": "pkg:npm/webidl-conversions@7.0.0",
+      "supplier": "",
+      "type": "library",
+      "version": "7.0.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "whatwg-url",
+      "purl": "pkg:npm/whatwg-url@14.2.0",
+      "supplier": "",
+      "type": "library",
+      "version": "14.2.0",
+      "vulnerabilities": ""
+    },
+    {
+      "license": "MIT",
+      "name": "with",
+      "purl": "pkg:npm/with@7.0.2",
+      "supplier": "",
+      "type": "library",
+      "version": "7.0.2",
+      "vulnerabilities": ""
+    }
+  ],
+  "dependency_chart": {
+    "data": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "labels": [
+      "Depth 1",
+      "Depth 2",
+      "Depth 3",
+      "Depth 4+"
+    ]
+  },
+  "license_chart": {
+    "data": [
+      132,
+      12,
+      4,
+      2,
+      1,
+      1
+    ],
+    "labels": [
+      "MIT",
+      "No License Detected",
+      "Apache-2.0",
+      "ISC",
+      "BSD-3-Clause",
+      "BSD-2-Clause"
+    ]
+  },
+  "project_name": "",
+  "sbom_timestamp": "2025-07-22T23:33:04.451111",
+  "vulnerability_chart": {
+    "data": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "labels": [
+      "Critical",
+      "High",
+      "Medium",
+      "Low",
+      "None"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+Vulnerabilty assessment:
+1. adding vulnerableTable with fields:
+Id: (Unique ID that is foreign key to the sbom database)
+vulDataa (json formate):
+   - ID (i.e GHSA-9hjg-9r4m-mvj7)
+   - CVE 
+   - severity (i.e low, moderate)
+   - package name
+   - details
+   - cvs score ("CVSS:4.0/AV:L/AC:L/AT:P/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N")
+
+2. To add graph in Vulnerabilty assessment filed.
+
+3. In table of vulnerableTable
+   i. Converting CVSS raw value into score
+  ii. Cleaning CVE summary and provide clean simple summary 
+ iii. Filtering table from Critical to Low  
+
+4. updating parsing code for filtering unwanted folders in backend
+
+
+
+5. Timespan wise filtering previous sbom results 
